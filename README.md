@@ -42,9 +42,10 @@ A collection of reusable GitHub Actions for standardizing CI/CD workflows across
 
 ### Tools
 
-| Action                                     | Description                                                                 |
-| ------------------------------------------ | --------------------------------------------------------------------------- |
-| [Setup Just](actions/setup-just/README.md) | Sets up Just command runner for efficient task execution in CI/CD pipelines |
+| Action                                     | Description                                                                                              |
+| ------------------------------------------ | -------------------------------------------------------------------------------------------------------- |
+| [Setup Just](actions/setup-just/README.md) | Sets up Just command runner for efficient task execution in CI/CD pipelines                              |
+| [Setup Helm](actions/setup-helm/README.md) | Sets up Helm with optional version configuration and caching for efficient Kubernetes package management |
 
 ## Usage
 
