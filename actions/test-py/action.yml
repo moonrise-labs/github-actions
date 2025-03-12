@@ -1,0 +1,63 @@
+name: Test Python
+description: 'Runs tests for Python projects with configurable options'
+author: 'Moonrise Labs'
+
+branding:
+  icon: 'play-circle'
+  color: 'yellow'
+
+inputs:
+  skip-python-setup:
+    description: 'Whether to skip the Python setup step'
+    default: 'false'
+    required: false
+  skip-just-setup:
+    description: 'Whether to skip the Just setup step'
+    default: 'false'
+    required: false
+  use-just:
+    description: 'Whether to use Just to run tests'
+    default: 'true'
+    required: false
+  just-command:
+    description: 'The Just command to run Python tests'
+    default: 'test-py'
+    required: false
+  test-args:
+    description: 'Additional arguments to pass to the test command'
+    default: ''
+    required: false
+  test-directory:
+    description: 'Directory to run tests in'
+    default: '.'
+    required: false
+
+runs:
+  using: composite
+  steps:
+    - name: Setup Python
+      if: ${{ inputs.skip-python-setup != 'true' }}
+      uses: moonrise-labs/github-actions/actions/setup-python@main
+      with:
+        install-dependencies: 'true'
+        dev-dependencies: 'true'
+
+    # Just-based testing
+
+    - name: Setup Just
+      if: ${{ inputs.skip-just-setup != 'true' && inputs.use-just == 'true' }}
+      uses: moonrise-labs/github-actions/actions/setup-just@main
+
+    - name: Run Tests with Just
+      if: ${{ inputs.use-just == 'true' }}
+      shell: bash
+      working-directory: ${{ inputs.test-directory }}
+      run: just ${{ inputs.just-command }} ${{ inputs.test-args }}
+
+    # Direct testing
+
+    - name: Run Tests with Pytest
+      if: ${{ inputs.use-just != 'true' }}
+      shell: bash
+      working-directory: ${{ inputs.test-directory }}
+      run: uv run pytest ${{ inputs.test-args }}

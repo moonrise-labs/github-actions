@@ -85,25 +85,6 @@ jobs:
       - uses: moonrise-labs/github-actions/actions/test-go@main
 ```
 
-## How It Works
-
-When using Go test commands directly (default):
-1. Sets up Go environment (unless skipped)
-2. Detects Go modules (if using workspace mode)
-3. Runs tests in each module directory or a specific directory using `go test ./...`
-
-When using Just (with `use-just: true`):
-1. Sets up Go environment (unless skipped)
-2. Sets up Just command runner
-3. If using workspace mode, detects Go modules and runs the Just command for each
-4. Otherwise, runs the Just command in the specified directory
-
-## Requirements
-
-- A Go project with tests
-- Just installed and a justfile with a test-go recipe (if using Just integration)
-- Working jq command on the runner (included in GitHub-hosted runners)
-
 ## License
 
 This project is licensed under the [MIT License](../../LICENSE).

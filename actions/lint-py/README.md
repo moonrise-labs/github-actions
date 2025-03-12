@@ -88,27 +88,6 @@ jobs:
       - uses: moonrise-labs/github-actions/actions/lint-py@main
 ```
 
-## How it works
-
-When using direct tool execution (default):
-1. Sets up Python environment with uv
-2. Runs Ruff for formatting checks (if enabled)
-3. Runs Ruff for linting checks (if enabled)
-4. Runs Pyright for type checking (if enabled)
-
-When using Just (with `use-just: true`):
-1. Sets up Python environment with uv
-2. Sets up Just command runner
-3. Runs formatting checks using the specified Just command
-4. Runs linting checks using the specified Just command
-5. Runs type checks using the specified Just command
-
-## Requirements
-
-- A Python project with dependencies defined in pyproject.toml or requirements.txt
-- Ruff and Pyright must be included in your project's dev dependencies
-- Just installed and appropriate recipes in your justfile (if using Just integration)
-
 ## License
 
 This project is licensed under the [MIT License](../../LICENSE).
