@@ -1,0 +1,21 @@
+name: Setup Just
+description: 'Sets up Just command runner for efficient task execution in CI/CD pipelines'
+author: 'Moonrise Labs'
+
+branding:
+  icon: 'terminal'
+  color: 'purple'
+
+inputs:
+  just-version:
+    description: 'Version of Just to install'
+    default: '1.39.0'
+    required: false
+
+runs:
+  using: composite
+  steps:
+    - name: Setup Just
+      uses: extractions/setup-just@dd310ad5a97d8e7b41793f8ef055398d51ad4de6 # v2
+      with:
+        just-version: ${{ inputs.just-version }}
