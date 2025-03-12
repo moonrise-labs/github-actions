@@ -1,0 +1,26 @@
+name: Setup Go
+description: 'Sets up Go environment with dependency caching for faster and more reliable builds'
+author: 'Moonrise Labs'
+
+branding:
+  icon: 'code'
+  color: 'blue'
+
+inputs:
+  go-version-file:
+    description: 'File containing the Go version to use'
+    default: 'go.work'
+    required: false
+  cache-dependency-path:
+    description: 'Path to Go module files for dependency caching'
+    default: 'go.work'
+    required: false
+
+runs:
+  using: composite
+  steps:
+    - name: Setup Go
+      uses: actions/setup-go@f111f3307d8850f501ac008e886eec1fd1932a34 # v5
+      with:
+        go-version-file: ${{ inputs.go-version-file }}
+        cache-dependency-path: ${{ inputs.cache-dependency-path }}
