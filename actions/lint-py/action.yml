@@ -1,0 +1,115 @@
+name: Lint Python
+description: 'Runs code quality checks for Python projects using Ruff and Pyright'
+author: 'Moonrise Labs'
+
+branding:
+  icon: 'check-circle'
+  color: 'yellow'
+
+inputs:
+  skip-python-setup:
+    description: 'Whether to skip the Python setup step'
+    default: 'false'
+    required: false
+  skip-just-setup:
+    description: 'Whether to skip the Just setup step'
+    default: 'false'
+    required: false
+  use-just:
+    description: 'Whether to use Just to run linting'
+    default: 'false'
+    required: false
+  just-format-command:
+    description: 'The Just command to run formatting checks'
+    default: 'format-py'
+    required: false
+  just-lint-command:
+    description: 'The Just command to run linting checks'
+    default: 'lint-py'
+    required: false
+  just-type-command:
+    description: 'The Just command to run type checks'
+    default: 'types-py'
+    required: false
+  format-check:
+    description: 'Whether to check code formatting with Ruff'
+    default: 'true'
+    required: false
+  format-path:
+    description: 'Path to check with Ruff format'
+    default: '.'
+    required: false
+  linting-check:
+    description: 'Whether to run linting checks with Ruff'
+    default: 'true'
+    required: false
+  lint-path:
+    description: 'Path to check with Ruff lint'
+    default: '.'
+    required: false
+  type-check:
+    description: 'Whether to run type checking with Pyright'
+    default: 'true'
+    required: false
+  type-path:
+    description: 'Path to check with Pyright'
+    default: '.'
+    required: false
+  working-directory:
+    description: 'Directory to run linting in'
+    default: '.'
+    required: false
+
+runs:
+  using: composite
+  steps:
+    - name: Setup Python with uv
+      if: ${{ inputs.skip-python-setup != 'true' }}
+      uses: moonrise-labs/github-actions/actions/setup-python@main
+      with:
+        install-dependencies: 'true'
+        dev-dependencies: 'true'
+
+    - name: Setup Just
+      if: ${{ inputs.skip-just-setup != 'true' && inputs.use-just == 'true' }}
+      uses: moonrise-labs/github-actions/actions/setup-just@main
+
+    # Just-based linting
+
+    - name: Check formatting with Just
+      if: ${{ inputs.format-check == 'true' && inputs.use-just == 'true' }}
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: just ${{ inputs.just-format-command }} ${{ inputs.format-path }}
+
+    - name: Run linting with Just
+      if: ${{ inputs.linting-check == 'true' && inputs.use-just == 'true' }}
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: just ${{ inputs.just-lint-command }} ${{ inputs.lint-path }}
+
+    - name: Run type checking with Just
+      if: ${{ inputs.type-check == 'true' && inputs.use-just == 'true' }}
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: just ${{ inputs.just-type-command }} ${{ inputs.type-path }}
+
+    # Direct tool linting
+
+    - name: Check formatting with Ruff
+      if: ${{ inputs.format-check == 'true' && inputs.use-just != 'true' }}
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: uv run ruff format --check ${{ inputs.format-path }}
+
+    - name: Run linting with Ruff
+      if: ${{ inputs.linting-check == 'true' && inputs.use-just != 'true' }}
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: uv run ruff check ${{ inputs.lint-path }}
+
+    - name: Check types with Pyright
+      if: ${{ inputs.type-check == 'true' && inputs.use-just != 'true' }}
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: uv run pyright ${{ inputs.type-path }}
