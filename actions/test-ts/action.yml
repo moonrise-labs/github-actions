@@ -1,0 +1,68 @@
+name: Test TypeScript
+description: 'Runs tests for TypeScript projects with configurable options'
+author: 'Moonrise Labs'
+
+branding:
+  icon: 'play-circle'
+  color: 'green'
+
+inputs:
+  skip-node-setup:
+    description: 'Whether to skip the Node setup step'
+    default: 'false'
+    required: false
+  skip-just-setup:
+    description: 'Whether to skip the Just setup step'
+    default: 'false'
+    required: false
+  use-just:
+    description: 'Whether to use Just to run tests'
+    default: 'false'
+    required: false
+  just-command:
+    description: 'The Just command to run TypeScript tests'
+    default: 'test-ts'
+    required: false
+  test-command:
+    description: 'The command to run tests (when not using Just)'
+    default: 'vitest run'
+    required: false
+  test-args:
+    description: 'Additional arguments to pass to the test command'
+    default: ''
+    required: false
+  test-path:
+    description: 'Path to test'
+    default: ''
+    required: false
+  working-directory:
+    description: 'Directory to run tests in'
+    default: '.'
+    required: false
+
+runs:
+  using: composite
+  steps:
+    - name: Setup Node
+      if: ${{ inputs.skip-node-setup != 'true' }}
+      uses: moonrise-labs/github-actions/actions/setup-node@main
+
+    - name: Setup Just
+      if: ${{ inputs.skip-just-setup != 'true' && inputs.use-just == 'true' }}
+      uses: moonrise-labs/github-actions/actions/setup-just@main
+
+    # Just-based testing
+
+    - name: Run Tests with Just
+      if: ${{ inputs.use-just == 'true' }}
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: just ${{ inputs.just-command }} ${{ inputs.test-path }} ${{ inputs.test-args }}
+
+    # Direct testing
+
+    - name: Run Tests
+      if: ${{ inputs.use-just != 'true' }}
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: pnpm ${{ inputs.test-command }} ${{ inputs.test-path }} ${{ inputs.test-args }}
