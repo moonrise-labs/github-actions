@@ -1,0 +1,88 @@
+name: Test Go
+description: 'Runs tests for Go projects with configurable options and module detection'
+author: 'Moonrise Labs'
+
+branding:
+  icon: 'play-circle'
+  color: 'blue'
+
+inputs:
+  skip-go-setup:
+    description: 'Whether to skip the Go setup step'
+    default: 'false'
+    required: false
+  skip-just-setup:
+    description: 'Whether to skip the Just setup step'
+    default: 'false'
+    required: false
+  use-just:
+    description: 'Whether to use Just to run tests'
+    default: 'false'
+    required: false
+  just-command:
+    description: 'The Just command to run Go tests'
+    default: 'test-go'
+    required: false
+  test-args:
+    description: 'Additional arguments to pass to the test command'
+    default: ''
+    required: false
+  use-workspace:
+    description: 'Whether to auto-detect and run tests in Go workspace modules'
+    default: 'true'
+    required: false
+  test-directory:
+    description: 'Directory to run tests in (if not using workspace)'
+    default: '.'
+    required: false
+
+runs:
+  using: composite
+  steps:
+    - name: Setup Go
+      if: ${{ inputs.skip-go-setup != 'true' }}
+      uses: moonrise-labs/github-actions/actions/setup-go@main
+
+    - name: Setup Just
+      if: ${{ inputs.skip-just-setup != 'true' && inputs.use-just == 'true' }}
+      uses: moonrise-labs/github-actions/actions/setup-just@main
+
+    - name: Detect Go Modules
+      id: detect-modules
+      if: ${{ inputs.use-workspace == 'true' }}
+      shell: bash
+      run: echo "modules=$(go list -m -json | jq -s '.' | jq -c '[.[].Dir]')" >> $GITHUB_OUTPUT
+
+    # Just-based testing
+
+    - name: Run Tests with Just for workspace
+      if: ${{ inputs.use-just == 'true' && inputs.use-workspace == 'true' }}
+      shell: bash
+      run: |
+        DIRS=$(echo '${{ steps.detect-modules.outputs.modules }}' | jq -r '.[]')
+        for dir in $DIRS; do
+          just ${{ inputs.just-command }} $dir ${{ inputs.test-args }}
+        done
+
+    - name: Run Tests with Just for single directory
+      if: ${{ inputs.use-just == 'true' && inputs.use-workspace != 'true' }}
+      shell: bash
+      working-directory: ${{ inputs.test-directory }}
+      run: just ${{ inputs.just-command }} ${{ inputs.test-args }}
+
+    # Direct testing
+
+    - name: Run Tests with Go for workspace
+      if: ${{ inputs.use-just != 'true' && inputs.use-workspace == 'true' }}
+      shell: bash
+      run: |
+        DIRS=$(echo '${{ steps.detect-modules.outputs.modules }}' | jq -r '.[]')
+        for dir in $DIRS; do
+          cd $dir && go test ./... ${{ inputs.test-args }}
+        done
+
+    - name: Run Tests with Go for single directory
+      if: ${{ inputs.use-just != 'true' && inputs.use-workspace != 'true' }}
+      shell: bash
+      working-directory: ${{ inputs.test-directory }}
+      run: go test ./... ${{ inputs.test-args }}
