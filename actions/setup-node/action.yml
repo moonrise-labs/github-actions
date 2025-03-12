@@ -1,0 +1,48 @@
+name: Setup Node with pnpm
+description: 'Sets up Node.js environment with pnpm package manager and caching for faster and more reliable builds'
+author: 'Moonrise Labs'
+
+branding:
+  icon: 'code'
+  color: 'green'
+
+inputs:
+  node-version-file:
+    description: 'File containing the Node.js version to use'
+    default: '.nvmrc'
+    required: false
+  pnpm-version:
+    description: 'Version of pnpm to install'
+    default: 'latest'
+    required: false
+  install-dependencies:
+    description: 'Whether to automatically install dependencies'
+    default: 'true'
+    required: false
+  frozen-lockfile:
+    description: 'Whether to use --frozen-lockfile flag during installation'
+    default: 'true'
+    required: false
+  production-only:
+    description: 'Whether to install only production dependencies'
+    default: 'false'
+    required: false
+
+runs:
+  using: composite
+  steps:
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        version: ${{ inputs.pnpm-version }}
+
+    - name: Setup Node
+      uses: actions/setup-node@1d0ff469b7ec7b3cb9d8673fde0c81c44821de2a # v4
+      with:
+        node-version-file: ${{ inputs.node-version-file }}
+        cache: 'pnpm'
+
+    - name: Install dependencies
+      if: ${{ inputs.install-dependencies == 'true' }}
+      shell: bash
+      run: pnpm install ${{ inputs.frozen-lockfile == 'true' && '--frozen-lockfile' || '' }} ${{ inputs.production-only == 'true' && '--prod' || '' }}
