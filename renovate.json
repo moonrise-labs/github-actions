@@ -1,0 +1,12 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["github>moonrise-labs/renovate-config"],
+  "packageRules": [
+    {
+      "automerge": true,
+      "extends": [":semanticCommitTypeAll(chore)"],
+      "groupName": "GitHub Actions",
+      "matchCategories": ["ci"]
+    }
+  ]
+}
