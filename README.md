@@ -34,6 +34,12 @@ A collection of reusable GitHub Actions for standardizing CI/CD workflows across
 | -------------------------------------- | -------------------------------------------------------------------------- |
 | [Lint SQL](actions/lint-sql/README.md) | Runs code quality checks for SQL files using SQLFluff with dialect support |
 
+### Docker
+
+| Action                                         | Description                                                                      |
+| ---------------------------------------------- | -------------------------------------------------------------------------------- |
+| [Build Docker](actions/build-docker/README.md) | Builds Docker images with support for multi-platform builds and Just integration |
+
 ### Tools
 
 | Action                                     | Description                                                                 |
